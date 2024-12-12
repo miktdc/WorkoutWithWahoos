@@ -1,0 +1,58 @@
+{% load static %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anonymous User Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    {% include './login_navbar.html' %}
+    <div class="container mt-4">
+        <h3>Sessions</h3>
+        <div class="border-top border-secondary mt-3 mb-3" style="height: 2px; margin: 5px 0; width: 100%;"></div>
+        {% if sessions %}
+        <div class="row">
+            {% for session in sessions %}
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><strong>{{ session.title }}</strong></h5>
+                        <p class="card-text">
+                            <strong>Topic:</strong> {{ session.topic }} </br>
+                            <strong>Creator:</strong> {{ session.creator.profile.real_name }} </br>
+                            <strong>Location:</strong> {{ session.location }} <br>
+                            <strong>Date:</strong> {{ session.date }} <br>
+                            <strong>Time:</strong> {{ session.time }} <br>
+                            <strong>Capacity:</strong> {{ session.size_capacity }} <br>
+                            <strong>Duration:</strong> {{ session.duration_minutes }} minutes <br>
+                            <strong>Description:</strong> {{ session.description }} <br>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No sessions are available at the moment.</p>
+        {% endif %}
+        <div class="border-top border-secondary mt-3 mb-3" style="height: 2px; margin: 5px 0; width: 100%;"></div>
+        <a href="{% url 'home' %}">
+            <button type="submit" class="btn btn-danger me-3 btn-outline-dark mb-4"
+                style="background-color: grey; color: white;" onmouseover="this.style.color='black'"
+                onmouseout="this.style.color='white'">
+                Back to Login Page
+            </button>
+        </a>
+    </div>
+
+    {% include './footer.html' %}
+</body>
+
+</html>

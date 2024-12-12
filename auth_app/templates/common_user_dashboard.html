@@ -1,0 +1,151 @@
+{% load filters %}
+{% load static %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Common User Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    {% include './navbar.html' %}
+    <!-- Content of the dashboard -->
+    <div class="container mt-4">
+        <!-- Messages Section -->
+        {% for message in messages|exclude_sign_in_messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        <h3>Your Dashboard</h3>
+        <p>As a Common User, you can view your sessions here.</p>
+
+        <div class="border-top border-secondary" style="height: 2px; margin: 5px 0; width: 100%;"></div>
+
+        <!-- Created Sessions Section -->
+        <h3>Created Sessions</h3>
+        {% if created_sessions %}
+        <div class="row">
+            {% for session in created_sessions %}
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">{{ session.title }}</h5>
+                        <p class="card-text">
+                            <strong>Topic:</strong> {{ session.topic }} <br>
+                            <strong>Location:</strong> {{ session.location }} <br>
+                            <strong>Date:</strong> {{ session.date }} <br>
+                            <strong>Time:</strong> {{ session.time }} <br>
+                            <strong>Remaining Capacity:</strong> {{ session.remaining_capacity }} <br>
+                        </p>
+                        <div class="text-center">
+                            <a href="{% url 'edit_session' session.id %}" class="btn btn-outline-dark mt-2">Edit</a>
+                            <a href="{% url 'workout_detail' session.id %}" class="btn btn-outline-dark mt-2">View</a>
+                            <button type="button" class="btn btn-outline-danger mt-2" data-bs-toggle="modal"
+                                data-bs-target="#deleteModal{{ session.id }}">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confirmation Modal for Deleting Created Session -->
+            <div class="modal fade" id="deleteModal{{ session.id }}" tabindex="-1"
+                aria-labelledby="deleteModalLabel{{ session.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel{{ session.id }}">Delete Session</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete the session "<strong>{{ session.title }}</strong>"?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <form action="{% url 'creator_delete_session' session.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>You have not created any sessions.</p>
+        {% endif %}
+
+        <div class="border-top border-secondary" style="height: 2px; margin: 5px 0; width: 100%;"></div>
+
+        <!-- Enrolled Sessions Section -->
+        <h3>Enrolled Sessions</h3>
+        {% if joined_sessions %}
+        <div class="row">
+            {% for session in joined_sessions %}
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">{{ session.title }}</h5>
+                        <p class="card-text">
+                            <strong>Topic:</strong> {{ session.topic }} <br>
+                            <strong>Location:</strong> {{ session.location }} <br>
+                            <strong>Date:</strong> {{ session.date }} <br>
+                            <strong>Time:</strong> {{ session.time }} <br>
+                            <strong>Remaining Capacity:</strong> {{ session.remaining_capacity }} <br>
+                        </p>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'workout_detail' session.id %}" type="button"
+                                class="btn btn-outline-dark mt-2">View</a>
+                            <button type="button" class="btn btn-outline-danger mt-2" data-bs-toggle="modal"
+                                data-bs-target="#dropModal{{ session.id }}">
+                                Drop
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confirmation Modal -->
+            <div class="modal fade" id="dropModal{{ session.id }}" tabindex="-1"
+                aria-labelledby="dropModalLabel{{ session.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="dropModalLabel{{ session.id }}">Drop Session</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to drop the session "<strong>{{ session.topic }}</strong>"?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <form method="POST" action="{% url 'drop_session' session.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Yes, Drop</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>You are not enrolled in any sessions.</p>
+        {% endif %}
+    </div>
+    {% include './footer.html' %}
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>

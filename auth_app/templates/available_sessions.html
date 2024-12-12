@@ -1,0 +1,101 @@
+{% load filters %}
+{% load static %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Sessions</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    {% include './navbar.html' %}
+
+    <div class="container mt-5">
+        <!-- Messages Section -->
+        {% for message in messages|exclude_sign_in_messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        <h1 class="text-center">Available Sessions</h1>
+
+        <!-- Separator -->
+        <div class="border-top border-secondary mt-3 mb-3" style="height: 2px; margin: 5px 0; width: 100%;"></div>
+
+        <!-- Sessions Section -->
+        {% if sessions %}
+        <div class="row">
+            {% for session in sessions %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ session.title }}</h5>
+                        <p class="card-text">
+                            <strong>Topic:</strong> {{ session.topic }} <br>
+                            <strong>Location:</strong> {{ session.location }} <br>
+                            <strong>Date:</strong> {{ session.date }} <br>
+                            <strong>Time:</strong> {{ session.time }} <br>
+                            <strong>Capacity:</strong> {{ session.size_capacity }} <br>
+                            <strong>Remaining:</strong> {{ session.remaining_capacity }} <br>
+                            {% if session.time_left %}
+                                <strong>Time left to sign up:</strong>
+                                {% if session.days_left > 0 %}
+                                    {{ session.days_left }} days
+                                {% else %}
+                                    {{ session.hours_left }} hours and {{ session.minutes_left }} minutes
+                                {% endif %}
+                            {% else %}
+                                <strong>Time left to sign up:</strong>
+                                <span>Sign up not available.</span>
+                            {% endif %}
+                        </p>
+
+                        {% with status=enrollment_status|get:session.id %}
+                            {% if status == 'pending' %}
+                                <button class="btn btn-secondary w-100" disabled>Requested</button>
+                            {% elif status == 'accepted' %}
+                                <button class="btn btn-success w-100" disabled>Accepted</button>
+                            {% elif status == 'denied' %}
+                                <button class="btn btn-danger w-100" disabled>Denied</button>
+                            {% else %}
+                                <form method="post" action="{% url 'request_enrollment' %}">
+                                    {% csrf_token %}
+                                    {% if session.time_left %}
+                                        <input type="hidden" name="session_id" value="{{ session.id }}">
+                                        <button type="submit" class="btn btn-success w-100">Enroll</button>
+                                    {% else %}
+                                        <button class="btn btn-danger w-100" disabled>Session has started</button>
+                                    {% endif %}
+                                </form>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-center">No sessions are available at the moment.</p>
+        {% endif %}
+
+        <!-- Separator -->
+        <div class="border-top border-secondary mt-3 mb-3" style="height: 2px; margin: 5px 0; width: 100%;"></div>
+
+        <!-- Back Button -->
+        <div class="d-flex justify-content-center">
+            <a href="{% url 'common_user_dashboard' %}" class="btn btn-outline-dark mb-4">
+                 Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    {% include './footer.html' %}
+</body>
+
+</html>

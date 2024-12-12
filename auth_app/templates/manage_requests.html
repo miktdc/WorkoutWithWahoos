@@ -1,0 +1,80 @@
+{% load filters %}
+{% load static %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Enrollment Requests</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    {% include './navbar.html' %}
+    <div class="container-fluid mt-5">
+        <!-- Messages Section
+        {% for message in messages|exclude_sign_in_messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %} -->
+        <h1 class="text-center">Manage Enrollment Requests for {{ session.topic }}</h1>
+         <!-- Session Full Indicator -->
+        {% if session.remaining_capacity == 0 %}
+        <p class="text-danger text-center">This session is full. No new requests can be approved.</p>
+        {% endif %}
+
+        <div class="border-top border-secondary" style="height: 2px; margin: 5px 0; width: 100%;"></div>
+
+        <div class="mt-4">
+            <h3>Pending Enrollment Requests</h3>
+            {% if pending_requests %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Request Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in pending_requests %}
+                    <tr>
+                        <td>{{ request.user.profile.real_name }}</td>
+                        <td>{{ request.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <form method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="request_id" value="{{ request.id }}">
+                                <!-- Disable Approve Button if Session is Full -->
+                                <button type="submit" name="action" value="approve"
+                                    class="btn btn-success btn-sm"
+                                    {% if session.remaining_capacity == 0 %} disabled {% endif %}>
+                                    Approve
+                                </button>
+                                <button type="submit" name="action" value="deny"
+                                    class="btn btn-danger btn-sm">Deny</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No pending enrollment requests.</p>
+            {% endif %}
+        </div>
+
+        <div class="d-flex justify-content-center">
+            <a href="{% url 'workout_detail' session.id %}" class="btn btn-primary">Back</a>
+        </div>
+    </div>
+
+    {% include './footer.html' %}
+</body>
+
+</html>

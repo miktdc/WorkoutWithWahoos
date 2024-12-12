@@ -1,0 +1,57 @@
+{% load filters %}
+{% load static %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    {% include './navbar.html' %}
+    <div class="container mt-4">
+        <!-- Messages Section -->
+        {% for message in messages|exclude_sign_in_messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        <h3>{{ profile.real_name }}'s Profile</h3>
+
+        <div class="border-top border-secondary" style="height: 2px; margin: 5px 0; width: 100%;"></div>
+
+        {% if profile.profile_picture %}
+        <img src="{{ profile.get_file_url }}" alt="Profile Picture" class="img-thumbnail my-3"
+            style="max-width: 200px;">
+        {% else %}
+        <p><em>No profile picture uploaded.</em></p>
+        {% endif %}
+
+        <p><strong>Email (Google Account):</strong> {{ profile.google_account }}</p>
+        <p><strong>Date Joined:</strong> {{ profile.date_joined|date:"F j, Y" }}</p>
+        <p><strong>Profile Type:</strong> {{ profile.get_user_type_display }}</p>
+        <p><strong>About Me:</strong> {{ profile.about_me|default:"User has not written anything about themselves."}}
+        </p>
+        <p><strong>Gender:</strong> {{ profile.gender|default:"This user has not selected a gender yet." }}</p>
+        <p><strong>Preferred Workout Dates:</strong> {{ profile.preferred_dates|default:"None" }}</p>
+        <p><strong>Preferred Workout Times:</strong> {{ profile.preferred_times|default:"None" }}</p>
+        <p><strong>Workout Likes:</strong> {{ profile.workout_likes|default:"None" }}</p>
+        <p><strong>Workout Dislikes:</strong> {{ profile.workout_dislikes|default:"None" }}</p>
+
+        <div class="border-top border-secondary" style="height: 2px; margin: 5px 0; width: 100%;"></div>
+
+        <a href="{% url 'update_profile' %}" class="btn btn-danger me-3 my-3 btn-outline-dark"
+            style="background-color: rgb(229, 114, 0);">
+            Update Profile
+        </a>
+    </div>
+    {% include './footer.html' %}
+</body>
+
+</html>

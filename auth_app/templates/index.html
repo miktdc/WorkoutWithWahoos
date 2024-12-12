@@ -1,0 +1,58 @@
+{% load static %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sign In</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    {% include './login_navbar.html' %}
+    <div class="container mt-5 d-flex justify-content-center">
+        <div class="col-md-6">
+            <div class="card p-4 align-items-center gap-4">
+                <h1 class="text-center" style="margin: 0;">Welcome to Our Website!</h1>
+
+                <div class="border-top border-secondary" style="height: 2px; margin: 5px 0; width: 100%;"></div>
+
+                {% load socialaccount %}
+                <a href="{% provider_login_url 'google' %}?next=/" class="btn btn-danger me-3 btn-outline-dark"
+                    style="background-color: rgb(229, 114, 0);">Login with Google</a>
+
+                {% if user.is_authenticated %}
+                <p>Redirecting to your dashboard...</p>
+
+                <script type="text/javascript">
+                    // Check the user type and redirect accordingly
+                    var userType = "{{ user_type|default:'' }}";
+                    if (userType === "pma_admin") {
+                        window.location.href = "{% url 'pma_admin_dashboard' %}";
+                    } else if (userType === "common") {
+                        window.location.href = "{% url 'common_user_dashboard' %}";
+                    }
+                </script>
+                {% else %}
+                <div>or...</div>
+
+                <a href="{% url 'anonymous_user' %}" class="btn btn-danger me-3 btn-outline-dark"
+                    style="background-color: grey;">Continue as Guest</a>
+                {% endif %}
+            </div>
+            <div class="text-center mt-2 text-secondary">
+                <b>Workout with Wahoos</b>
+                connects fitness enthusiasts by allowing you to join or create workout sessions. 
+                Stay organized, track your progress, and connect with others through our message board.
+                Sign up today and start your fitness journey with us!
+            </div>
+        </div>
+    </div>
+    {% include './footer.html' %}
+</body>
+
+</html>
